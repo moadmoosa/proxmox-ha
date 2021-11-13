@@ -78,13 +78,13 @@ wget -qO - ${REPO}/tarball/master | tar -xz --strip-components=1
 # Modify LXC permissions to support Docker
 LXC_CONFIG=/etc/pve/lxc/${CTID}.conf
 cat <<EOF >> $LXC_CONFIG
-lxc.cgroup.devices.allow: a
+lxc.cgroup2.devices.allow: a
 lxc.cap.drop:
 EOF
 
 # Load modules for Docker before starting LXC
 cat << 'EOF' >> $LXC_CONFIG
-lxc.hook.pre-start: sh -ec 'for module in aufs overlay; do modinfo $module; $(lsmod | grep -Fq $module) || modprobe $module; done;'
+lxc.hook.pre-start: sh -ec 'for module in overlay; do modinfo $module; $(lsmod | grep -Fq $module) || modprobe $module; done;'
 EOF
 
 # Set autodev hook to enable access to devices in container
@@ -110,17 +110,18 @@ lxc-cmd apt-get -y purge openssh-{client,server} >/dev/null
 
 # Update container OS
 msg "Updating container OS..."
-lxc-cmd apt-get update >/dev/null
+lxc-cmd apt-get update --allow-releaseinfo-change >/dev/null
 lxc-cmd apt-get -qqy upgrade &>/dev/null
 
 # Install prerequisites
 msg "Installing prerequisites..."
 lxc-cmd apt-get -qqy install \
-    avahi-daemon curl jq network-manager xterm &>/dev/null
+    avahi-daemon wget curl udisks2 jq libglib2.0-bin network-manager dbus xterm &>/dev/null
 
 # Install Docker
 msg "Installing Docker..."
-lxc-cmd sh <(curl -sSL https://get.docker.com) &>/dev/null
+lxc-cmd bash -c "curl -fsSL get.docker.com | sh")
+
 
 # Configure Docker configuration
 msg "Configuring Docker..."
