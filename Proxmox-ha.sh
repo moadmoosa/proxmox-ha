@@ -120,16 +120,20 @@ lxc-cmd apt-get -qqy install \
 
 # Install Docker
 msg "Installing Docker..."
-lxc-cmd sh <(curl -fsSL https://get.docker.com) &>/dev/null
-
+lxc-cmd bash -c "curl -fsSL get.docker.com | sh")
 
 # Configure Docker configuration
 msg "Configuring Docker..."
 DOCKER_CONFIG_PATH='/etc/docker/daemon.json'
+msg "Configuring Docker...1"
 HA_URL_BASE=https://github.com/home-assistant/supervised-installer/raw/master/files
+msg HA_URL_BASE
 lxc-cmd mkdir -p $(dirname $DOCKER_CONFIG_PATH)
+msg "Configuring Docker...2"
 lxc-cmd wget -qLO $DOCKER_CONFIG_PATH ${HA_URL_BASE}/docker_daemon.json
+msg "Configuring Docker...3"
 lxc-cmd systemctl restart docker
+msg "Configuring Docker...4"
 
 # Configure NetworkManager
 msg "Configuring NetworkManager..."
