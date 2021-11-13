@@ -120,7 +120,7 @@ lxc-cmd apt-get -qqy install \
 
 # Install Docker
 msg "Installing Docker..."
-lxc-cmd curl -fsSL get.docker.com | sh &>/dev/null
+lxc-cmd bash -c "curl -fsSL get.docker.com | sh")
 
 
 # Configure Docker configuration
