@@ -116,7 +116,7 @@ lxc-cmd apt-get -qqy upgrade &>/dev/null
 # Install prerequisites
 msg "Installing prerequisites..."
 lxc-cmd apt-get -qqy install \
-    avahi-daemon wget curl udisks2 jq libglib2.0-bin network-manager dbus xterm &>/dev/null
+    avahi-daemon wget jq libglib2.0-bin network-manager dbus xterm &>/dev/null
 
 # Install Docker
 msg "Installing Docker..."
