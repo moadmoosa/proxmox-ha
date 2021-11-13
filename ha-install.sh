@@ -120,28 +120,24 @@ lxc-cmd apt-get -qqy install \
 
 # Install Docker
 msg "Installing Docker..."
-lxc-cmd bash -c "curl -fsSL get.docker.com | sh"
+lxc-cmd bash -c "curl -fsSL get.docker.com | sh" &>/dev/null
 
 # Configure Docker configuration
 msg "Configuring Docker..."
 DOCKER_CONFIG_PATH='/etc/docker/daemon.json'
-msg "Configuring Docker...1"
-HA_URL_BASE=https://raw.githubusercontent.com/home-assistant/supervised-installer/main/homeassistant-supervised/etc/docker
-msg HA_URL_BASE
+
+HA_URL_BASE='https://raw.githubusercontent.com/home-assistant/supervised-installer/main/homeassistant-supervised/etc'
 lxc-cmd mkdir -p $(dirname $DOCKER_CONFIG_PATH)
-msg "Configuring Docker...2"
-lxc-cmd wget -qLO $DOCKER_CONFIG_PATH ${HA_URL_BASE}/docker_daemon.json
-msg "Configuring Docker...3"
+lxc-cmd wget -qLO $DOCKER_CONFIG_PATH ${HA_URL_BASE}/docker/daemon.json
 lxc-cmd systemctl restart docker
-msg "Configuring Docker...4"
 
 # Configure NetworkManager
 msg "Configuring NetworkManager..."
 NETWORKMANAGER_CONFIG_PATH='/etc/NetworkManager/NetworkManager.conf'
-lxc-cmd wget -qLO $NETWORKMANAGER_CONFIG_PATH ${HA_URL_BASE}/NetworkManager.conf
+lxc-cmd wget -qLO $NETWORKMANAGER_CONFIG_PATH ${HA_URL_BASE}/NetworkManager/NetworkManager.conf
 lxc-cmd sed -i 's/type\:veth/interface-name\:veth\*/' $NETWORKMANAGER_CONFIG_PATH
 NETWORKMANAGER_PROFILE_PATH='/etc/NetworkManager/system-connections/default'
-lxc-cmd wget -qLO $NETWORKMANAGER_PROFILE_PATH ${HA_URL_BASE}/system-connection-default
+lxc-cmd wget -qLO $NETWORKMANAGER_PROFILE_PATH ${HA_URL_BASE}/system-connections/default
 lxc-cmd chmod 600 $NETWORKMANAGER_PROFILE_PATH
 NETWORKMANAGER_CONNECTION=$(lxc-cmd nmcli connection | grep eth0 | awk -F "  " '{print $1}')
 lxc-cmd nmcli connection down "$NETWORKMANAGER_CONNECTION" > /dev/null
@@ -177,7 +173,7 @@ HASSIO_SUPERVISOR_PATH=/usr/sbin/hassio-supervisor
 HASSIO_SUPERVISOR_SERVICE=/etc/systemd/system/hassio-supervisor.service
 lxc-cmd wget -qLO $HASSIO_SUPERVISOR_PATH ${HA_URL_BASE}/hassio-supervisor
 lxc-cmd chmod a+x $HASSIO_SUPERVISOR_PATH
-lxc-cmd wget -qLO $HASSIO_SUPERVISOR_SERVICE ${HA_URL_BASE}/hassio-supervisor.service
+lxc-cmd wget -qLO $HASSIO_SUPERVISOR_SERVICE ${HA_URL_BASE}/systemd/system/hassio-supervisor.service
 lxc-cmd sed -i "s,%%HASSIO_CONFIG%%,${HASSIO_CONFIG_PATH},g" $HASSIO_SUPERVISOR_PATH
 lxc-cmd sed -i -e "s,%%BINARY_DOCKER%%,/usr/bin/docker,g" \
   -e "s,%%SERVICE_DOCKER%%,docker.service,g" \
@@ -197,7 +193,7 @@ lxc-cmd systemctl start hassio-supervisor.service
 
 # Install 'ha' cli
 msg "Installing the 'ha' cli..."
-lxc-cmd wget -qLO /usr/bin/ha ${HA_URL_BASE}/ha
+lxc-cmd wget -qLO /usr/bin/ha https://raw.githubusercontent.com/home-assistant/supervised-installer/main/homeassistant-supervised/usr/bin/ha
 lxc-cmd chmod a+x /usr/bin/ha
 
 # Setup 'ha' cli prompt
