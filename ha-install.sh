@@ -138,13 +138,21 @@ lxc-cmd wget -qLO $NETWORKMANAGER_CONFIG_PATH ${HA_URL_BASE}/NetworkManager/Netw
 lxc-cmd sed -i 's/type\:veth/interface-name\:veth\*/' $NETWORKMANAGER_CONFIG_PATH
 NETWORKMANAGER_PROFILE_PATH='/etc/NetworkManager/system-connections/default'
 lxc-cmd wget -qLO $NETWORKMANAGER_PROFILE_PATH ${HA_URL_BASE}/NetworkManager/system-connections/default
+msg "1"
 lxc-cmd chmod 600 $NETWORKMANAGER_PROFILE_PATH
+msg "2"
 NETWORKMANAGER_CONNECTION=$(lxc-cmd nmcli connection | grep eth0 | awk -F "  " '{print $1}')
+msg "3"
 lxc-cmd nmcli connection down "$NETWORKMANAGER_CONNECTION" > /dev/null
+msg "4"
 lxc-cmd nmcli connection delete "$NETWORKMANAGER_CONNECTION" > /dev/null
+msg "5"
 lxc-cmd dhclient -r &> /dev/null
+msg "6"
 lxc-cmd systemctl restart NetworkManager
+msg "7"
 lxc-cmd nm-online -q
+msg "8"
 
 # Create Home Assistant config
 msg "Creating Home Assistant config..."
